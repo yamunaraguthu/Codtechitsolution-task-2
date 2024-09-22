@@ -1,0 +1,137 @@
+Name:RAGUTHU YAMUNA 
+Company:CODTECHITSOLUTIONS 
+ID:CT12DS2502 
+Domain:Machine Learning Duration:sept to november 2024
+
+
+/*BMI TRACKER */
+from flask import Flask, request, jsonify, render_template
+import numpy as np
+import pandas as pd
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
+
+app = Flask(__name__)
+
+# Example dataset (User's past BMI and timestamp)
+data = {
+    "timestamp": [1, 2, 3, 4, 5],  # e.g., months or weeks
+    "bmi": [22.0, 23.5, 24.0, 25.2, 26.0]  # BMI over time
+}
+df = pd.DataFrame(data)
+
+# Training the machine learning model (Linear Regression)
+def train_model(dataframe):
+    X = dataframe[['timestamp']].values
+    y = dataframe['bmi'].values
+    model = LinearRegression()
+    model.fit(X, y)
+    return model
+
+# Predict future BMI (e.g., 6 months in the future)
+def predict_bmi(model, future_time):
+    return model.predict(np.array([[future_time]]))[0]
+
+# Homepage
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+# BMI Calculator Endpoint
+@app.route('/calculate_bmi', methods=['POST'])
+def calculate_bmi():
+    data = request.json
+    weight = data['weight']
+    height = data['height']
+    bmi = weight / (height ** 2)
+    return jsonify({"bmi": bmi})
+
+# Train the model and predict future BMI
+@app.route('/predict_bmi', methods=['POST'])
+def predict():
+    global df
+    future_time = int(request.json['future_time'])  # e.g., predict for 6th month
+    model = train_model(df)
+    predicted_bmi = predict_bmi(model, future_time)
+    return jsonify({"predicted_bmi": predicted_bmi})
+
+# Add a new BMI entry to the dataset
+@app.route('/add_bmi', methods=['POST'])
+def add_bmi():
+    global df
+    new_data = request.json
+    new_timestamp = int(new_data['timestamp'])
+    new_bmi = float(new_data['bmi'])
+    df = df.append({"timestamp": new_timestamp, "bmi": new_bmi}, ignore_index=True)
+    return jsonify({"status": "success", "updated_data": df.to_dict()})
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
+
+/* WITH BMI TRACKER*/
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMI Tracker</title>
+</head>
+<body>
+    <h1>BMI Tracker</h1>
+    
+    <!-- BMI Calculation Form -->
+    <form id="bmi-form">
+        <label for="weight">Weight (kg):</label>
+        <input type="number" id="weight" name="weight">
+        <label for="height">Height (m):</label>
+        <input type="number" id="height" name="height" step="0.01">
+        <button type="button" onclick="calculateBMI()">Calculate BMI</button>
+    </form>
+
+    <!-- BMI Prediction Form -->
+    <form id="predict-form">
+        <label for="future_time">Predict BMI for Month:</label>
+        <input type="number" id="future_time" name="future_time">
+        <button type="button" onclick="predictBMI()">Predict BMI</button>
+    </form>
+
+    <div id="result"></div>
+
+    <script>
+        // Calculate BMI
+        function calculateBMI() {
+            let weight = document.getElementById('weight').value;
+            let height = document.getElementById('height').value;
+            fetch('/calculate_bmi', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ weight: weight, height: height })
+            }).then(response => response.json())
+            .then(data => {
+                document.getElementById('result').innerHTML = "Your BMI: " + data.bmi.toFixed(2);
+            });
+        }
+
+        // Predict BMI
+        function predictBMI() {
+            let future_time = document.getElementById('future_time').value;
+            fetch('/predict_bmi', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ future_time: future_time })
+            }).then(response => response.json())
+            .then(data => {
+                document.getElementById('result').innerHTML = "Predicted BMI: " + data.predicted_bmi.toFixed(2);
+            });
+        }
+    </script>
+</body>
+</html>
+
