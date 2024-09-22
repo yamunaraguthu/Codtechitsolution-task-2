@@ -1,3 +1,12 @@
+Name:RAGUTHU YAMUNA 
+Company:CODTECHITSOLUTIONS 
+ID:CT12DS2502 
+Domain:Machine Learning Duration:sept to november 2024
+
+Project:BMI TRACKER APP
+
+OBJECTIVE:
+
 To create a BMI Tracker App with Machine Learning, we can integrate predictive capabilities to offer more personalized health insights. For instance, the app could predict the user’s future BMI based on past data or recommend ideal weight ranges. Below is a simple plan with machine learning integrated into a BMI Tracker app:
 
 1. Requirements
