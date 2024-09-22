@@ -1,9 +1,3 @@
-Name:RAGUTHU YAMUNA 
-Company:CODTECHITSOLUTIONS 
-ID:CT12DS2502 
-Domain:Machine Learning Duration:sept to november 2024
-
-
 /*BMI TRACKER */
 from flask import Flask, request, jsonify, render_template
 import numpy as np
